@@ -9,7 +9,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts ."
+    "lint": "eslint --ext .ts .",
+    "test": "mocha --max-old-space-size=8192 -r ts-node/register src/**/*.spec.ts"
   },
   "keywords": [],
   "author": {
@@ -70,6 +71,9 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@types/chai": "^4.2.17",
+    "@types/lodash": "^4.14.168",
+    "@types/mocha": "^8.2.2",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
@@ -85,10 +89,14 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
+    "chai": "^4.3.4",
     "electron-squirrel-startup": "^1.0.0",
     "eslint-import-resolver-typescript": "^2.4.0",
+    "lodash": "^4.17.21",
+    "mocha": "^8.3.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-hot-loader": "^4.13.0"
+    "react-hot-loader": "^4.13.0",
+    "ts-node": "^9.1.1"
   }
 }

@@ -14,7 +14,8 @@ interface IState {
 
 interface IProps {
   position: Position
-  stones?: any[]
+  stones?: any[],
+  hoverOn?: boolean
 }
 
 export default class Hole extends React.Component<IProps, IState> {
@@ -26,17 +27,19 @@ export default class Hole extends React.Component<IProps, IState> {
       focus: false,
       hover: false
     }
-    this.toggleActive = this.toggleActive.bind(this);
+    this.afterClick = this.afterClick.bind(this);
     this.toggleHover = this.toggleHover.bind(this);
     this.toggleFocus = this.toggleFocus.bind(this);
   }
 
   toggleHover() {
-    this.setState({ hover: !this.state.hover })
+    if(this.props.hoverOn) {
+      this.setState({ hover: !this.state.hover })
+    }
   }
 
-  toggleActive() {
-    this.setState({active: !this.state.active})
+  afterClick() {
+    this.setState({ hover: false })
   }
 
   toggleFocus() {
@@ -45,8 +48,8 @@ export default class Hole extends React.Component<IProps, IState> {
 
   render () {
     let holeStyle: CSSProperties = {
-      width: "50px",
-      height: "40px",
+      width: "55px",
+      height: "45px",
       boxSizing: "border-box",
       borderRadius: "50%",
       backgroundColor: "peru",
@@ -56,13 +59,17 @@ export default class Hole extends React.Component<IProps, IState> {
       overflow: "hidden",
       position: "relative",
       margin: "3px",
+      padding: "2px",
       justifyContent: "center",
       alignItems: "center",
     };
     if(this.state.hover) {
       holeStyle.backgroundColor = 'brown';
       holeStyle.border = "3px solid black";
-    } 
+    } else {
+      holeStyle.backgroundColor =  "peru";
+      holeStyle.border = "2px solid black";
+    }
     
     return (
       <div>
@@ -73,7 +80,7 @@ export default class Hole extends React.Component<IProps, IState> {
         }
         <div style={holeStyle} 
           onMouseOver={this.toggleHover} 
-          onMouseOut={this.toggleHover} 
+          onMouseOut={this.afterClick} 
         >
           {this.props.stones}
         </div>

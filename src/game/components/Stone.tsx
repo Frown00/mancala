@@ -14,7 +14,7 @@ export default class Stone extends React.Component<IProps> {
     super(props);
   }
 
-  shouldComponentUpdate(nextProps: IProps, nextState: {}) {
+  shouldComponentUpdate(nextProps: IProps) {
     if (this.props.color === nextProps.color) {
       return false;
     } else {
