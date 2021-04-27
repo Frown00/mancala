@@ -2,7 +2,7 @@ export enum Player {
   _1 = 'Player_1',
   _2 = 'Player_2'
 }
-type PlayerState = { player: Player, stones: number[], points: number }
+export type PlayerState = { player: Player, stones: number[], points: number }
 
 export class MankalaGame {
   private state: [PlayerState, PlayerState];
@@ -18,7 +18,8 @@ export class MankalaGame {
       this.state[0].stones.push(startingStones);
       this.state[1].stones.push(startingStones);
     }
-    this.playerTurn = Player._1;
+    const drawTurn = Math.floor(Math.random() * 2);
+    this.playerTurn = Object.values(Player)[drawTurn];
   }
 
   getPlayerState(player: Player) {
