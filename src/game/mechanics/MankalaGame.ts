@@ -79,8 +79,9 @@ export class MankalaGame {
     if(currentState.player === player) {
       const id = this.lastTouchedHole;
       const stones = currentState.stones[id];
-      if(stones === 1) {
-        const earned = enemyState.stones[holes - currentHole] + 1;
+      const enemyStones = enemyState.stones[holes - currentHole]
+      if(stones === 1 && enemyStones > 0) {
+        const earned = enemyStones + stones;
         enemyState.stones[holes - currentHole] = 0;
         currentState.stones[id] = 0;
         currentState.points += earned;
