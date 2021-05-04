@@ -58,15 +58,31 @@ export function moveStones(
     if(after > before) {
       const stonesAmount = after - before;
       for(let s = 0; s < stonesAmount; s++) {
+        if(stonesToSplit[0] === undefined) {
+          console.error('ERROR:', "no stones to split", playerBoard, stateBefore, stateAfter);
+          throw Error();
+        }
         playerBoard.holes[i].push(stonesToSplit[0]);
         stonesToSplit.splice(0, 1);
       }
     }
   }
-  const earnedPoints = stateAfter.points - stateBefore.points;
-  for(let i = 0; i < earnedPoints; i++) {
-    playerBoard.well.push(stonesToSplit[0]);
-    stonesToSplit.splice(0, 1);
+}
+
+export function moveToWell(
+  playerBoard: IBoardState,
+  pointsGained: number,
+  stones: JSX.Element[]
+) {
+  const amount = pointsGained;
+  console.log(playerBoard, pointsGained, stones.length);
+  for(let i = 0; i < amount; i++) {
+    if(stones[0] === undefined) {
+      console.error('ERROR:', "no stones for well", playerBoard);
+      throw Error();
+    }
+    playerBoard.well.push(stones[0]);
+    stones.splice(0, 1);
   }
 }
 
