@@ -1,5 +1,5 @@
 import React from 'react';
-import { Player } from '../mechanics/MankalaGame';
+import { Player } from '../mechanics/MancalaGame';
 import Hole, { Position } from './Hole';
 import Stone from './Stone';
 import Well from './Well';
@@ -15,7 +15,7 @@ interface IProps {
   nextTurn: Player
 }
 
-export default class Mankala extends React.Component<IProps, IState> {
+export default class Mancala extends React.Component<IProps, IState> {
 
   constructor(props: IProps) {
     super(props);

@@ -1,5 +1,5 @@
 import React from "react";
-import { Player, PlayerState } from "../../mechanics/MankalaGame";
+import { Player, PlayerState } from "../../mechanics/MancalaGame";
 import Stone from "../Stone";
 import { IState } from "./Game";
 import { IBoardState } from "./types";

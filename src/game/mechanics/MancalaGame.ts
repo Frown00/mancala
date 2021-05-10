@@ -12,7 +12,7 @@ export enum GameStatus {
 
 export type PlayerState = { player: Player, stones: number[], points: number }
 
-export class MankalaGame {
+export class MancalaGame {
   private history: { states: [PlayerState, PlayerState], turn: Player }[];
   private state: [PlayerState, PlayerState];
   private playerTurn: Player;

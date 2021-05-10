@@ -1,5 +1,7 @@
 import { expect } from 'chai';
-import { MankalaGame, Player } from './MankalaGame';
+import { MancalaGame, Player } from './MancalaGame';
+import { minimax } from './minimax';
+import { Leaf, Node } from './Tree';
 
 describe('Mankala', () => {
   describe('starting game', () => {
@@ -7,7 +9,7 @@ describe('Mankala', () => {
       // Given
       const startingStones = 4;
       // When
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
       const player1 = mankala.getPlayerState(Player._1);
       const player2 = mankala.getPlayerState(Player._2);
       // Then
@@ -22,7 +24,7 @@ describe('Mankala', () => {
     it('choose first hole', () => {
       // Given
       const starting = 4;
-      const mankala = new MankalaGame(starting);
+      const mankala = new MancalaGame(starting);
       // When
       const first = 1;
       mankala.turn(first);
@@ -35,7 +37,7 @@ describe('Mankala', () => {
     it('choose second hole', () => {
       // Given
       const startingStones = 4;
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
 
       // When
      
@@ -46,7 +48,7 @@ describe('Mankala', () => {
     it('choose third hole', () => {
       // Given
       const startingStones = 4;
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
       // When
       // Then
       const stones = Array(6).fill(startingStones, 0, 6);
@@ -56,7 +58,7 @@ describe('Mankala', () => {
     it('choose fourth hole', () => {
       // Given
       const startingStones = 4;
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
       // When
       // Then
       // log(map);
@@ -65,7 +67,7 @@ describe('Mankala', () => {
     it('choose fifth hole', () => {
       // Given
       const startingStones = 4;
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
       // When
       // Then
       const stones = Array(6).fill(startingStones, 0, 6);
@@ -75,7 +77,7 @@ describe('Mankala', () => {
     it('choose sixth hole', () => {
       // Given
       const startingStones = 4;
-      const mankala = new MankalaGame(startingStones);
+      const mankala = new MancalaGame(startingStones);
       // When
       // Then
       const stones = Array(6).fill(startingStones, 0, 6);

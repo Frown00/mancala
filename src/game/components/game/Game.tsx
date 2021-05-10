@@ -1,14 +1,14 @@
 import React from 'react';
 import { hot } from 'react-hot-loader';
-import Mankala from '../Mankala';
-import { GameStatus, MankalaGame, Player } from '../../mechanics/MankalaGame';
+import Mancala from '../Mancala';
+import { GameStatus, MancalaGame, Player } from '../../mechanics/MancalaGame';
 import _ from "lodash";
 import * as helper from "./helpers";
 import { IBoardState } from './types';
 
 export interface IState {
   history: { player1: IBoardState, player2: IBoardState }[],
-  mankala: MankalaGame,
+  mancala: MancalaGame,
   player1: IBoardState,
   player2: IBoardState,
   players: string[],
@@ -22,7 +22,7 @@ class Game extends React.Component<{}, IState> {
     super(props);
     const startingStones = 4;
     const holes = 6;
-    const mankala = new MankalaGame(startingStones);
+    const mancala = new MancalaGame(startingStones);
     const stonesNumber = 2 * holes * startingStones;
     const stones = helper.genereteStones(stonesNumber);
     const filledHoles = helper
@@ -30,11 +30,11 @@ class Game extends React.Component<{}, IState> {
     const player1: IBoardState = { well: [], holes: filledHoles.holes1 };
     const player2: IBoardState = { well: [], holes: filledHoles.holes2 };
     const playersNames = ["Player 1", "Player 2"];
-    const firstTurn = mankala.whoseTurn();
+    const firstTurn = mancala.whoseTurn();
     let turn = firstTurn === Player._1 ? playersNames[0] : playersNames[1];
     this.state = {
       history: [],
-      mankala,
+      mancala,
       players: playersNames,
       player1,
       player2,
@@ -45,9 +45,9 @@ class Game extends React.Component<{}, IState> {
   }
 
   chooseHole(playerId: Player, hole: 1 | 2 | 3 | 4 | 5 | 6) {
-    const mankala = this.state.mankala;
+    const mancala = this.state.mancala;
     const history = this.state.history;
-    let player = mankala.whoseTurn();
+    let player = mancala.whoseTurn();
     if(playerId !== player) {
       console.error("Selected opponent hole");
       return;
@@ -69,15 +69,15 @@ class Game extends React.Component<{}, IState> {
       player1: _.cloneDeep(this.state.player1), 
       player2: _.cloneDeep(this.state.player2)
     });
-    const state1Before = _.cloneDeep(mankala.getPlayerState(player));
-    const state2Before = _.cloneDeep(mankala.getPlayerState(enemy));
+    const state1Before = _.cloneDeep(mancala.getPlayerState(player));
+    const state2Before = _.cloneDeep(mancala.getPlayerState(enemy));
     // Action
     let stonesToSplit = stones;
-    const result = mankala.turn(hole);
-    const whoseNextTurn = mankala.whoseTurn();
+    const result = mancala.turn(hole);
+    const whoseNextTurn = mancala.whoseTurn();
     // Move stones
     if(result.isCaptured) {
-      const lastTouched = mankala.getLastTouched();
+      const lastTouched = mancala.getLastTouched();
       const toMove = choosingPlayer.holes[lastTouched];
       const holes = enemyPlayer.holes.length;
       const captured = enemyPlayer.holes[holes - 1 - lastTouched];
@@ -86,8 +86,8 @@ class Game extends React.Component<{}, IState> {
       stonesToSplit.push(...toMove, ...captured);
     }
     console.log("Stones to split", stonesToSplit.length);
-    const state1 = mankala.getPlayerState(player);
-    const state2 = mankala.getPlayerState(enemy);
+    const state1 = mancala.getPlayerState(player);
+    const state2 = mancala.getPlayerState(enemy);
     helper.moveStones(choosingPlayer, state1Before, state1, stones);
     helper.moveStones(enemyPlayer, state2Before, state2, stones);
     const pointsGained = state1.points - state1Before.points;
@@ -113,7 +113,7 @@ class Game extends React.Component<{}, IState> {
       console.log('FINITO');
       console.log(choosingPlayer.holes);
       console.log(enemyPlayer.holes);
-      const winner = mankala.getWinner();
+      const winner = mancala.getWinner();
       console.log("Game has been finished");
       let result = "It's a draw";
       if(winner) {
@@ -134,12 +134,12 @@ class Game extends React.Component<{}, IState> {
   undoTurn() {
     const history = this.state.history;
     if(history.length <= 0) return;
-    this.state.mankala.undo();
+    this.state.mancala.undo();
     const lastSaved = history.pop();
-    const turn = this.state.mankala.whoseTurn()  === Player._1 ? this.state.players[0] : this.state.players[1];
+    const turn = this.state.mancala.whoseTurn()  === Player._1 ? this.state.players[0] : this.state.players[1];
     this.setState({ 
       history,
-      mankala: this.state.mankala, 
+      mancala: this.state.mancala, 
       player1: lastSaved.player1, 
       player2: lastSaved.player2, 
       turn,
@@ -164,12 +164,12 @@ class Game extends React.Component<{}, IState> {
             <b>{this.state.turn}</b>
           </p>
         </div>
-        <Mankala 
+        <Mancala 
           chooseHole={this.chooseHole}
           players={this.state.players}
           player1={this.state.player1} 
           player2={this.state.player2}
-          nextTurn={this.state.mankala.whoseTurn()}
+          nextTurn={this.state.mancala.whoseTurn()}
         />
         <button onClick={() => this.undoTurn()}>Undo</button>
         { this.state.result ? 
