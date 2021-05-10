@@ -35,9 +35,7 @@ export class MankalaGame {
     const takingAction = this.playerTurn;
     const { isAnotherTurn, currentState } = this.moveCounterclockwise(holeId, takingAction);
     const isCaptured = this.captureStones(currentState, takingAction);
-    if(!isAnotherTurn) {
-      this.playerTurn = this.playerTurn === Player._1 ? Player._2 : Player._1;
-    }
+    this.setWhoseNext(isAnotherTurn);
     const status = this.isGameOver(takingAction);
     return { status, isCaptured };
   }
@@ -68,6 +66,12 @@ export class MankalaGame {
 
   getLastTouched(): number {
     return this.lastTouchedHole;
+  }
+
+  private setWhoseNext(isAnotherTurn: boolean) {
+    if(!isAnotherTurn) {
+      this.playerTurn = this.playerTurn === Player._1 ? Player._2 : Player._1;
+    }
   }
 
   private spreadStones(holesPerPlayer: number, startingStones: number) {
