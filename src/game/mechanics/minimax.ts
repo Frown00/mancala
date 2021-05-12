@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { GameStatus, MancalaGame, Player } from "./MancalaGame";
-import { Leaf, Node, Tree } from "./Tree";
 
 function isMaximizingPlayer(game: MancalaGame) {
   const turn = game.whoseTurn();

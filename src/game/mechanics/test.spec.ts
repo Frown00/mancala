@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import { MancalaGame, Player } from './MancalaGame';
 import { alphaBeta, minimax } from './minimax';
-import { Leaf, Node } from './Tree';
 
 describe('Mankala', () => {
   describe('starting game', () => {
