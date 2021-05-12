@@ -1,59 +1,126 @@
+import _ from "lodash";
+import { GameStatus, MancalaGame, Player } from "./MancalaGame";
 import { Leaf, Node, Tree } from "./Tree";
 
-function _minimax(
-  position: Tree<number>, 
-  depth: number, 
-  alpha: number, 
-  beta: number, 
-  maximizingPlayer: boolean
-) {
-  const isGameOver = false;
-  if(position instanceof Leaf) {
-		return position.value();
-	}
-  // if(depth === 0 || isGameOver) {
-  //   return (<Leaf<number>>position).value();
-  // }
+function isMaximizingPlayer(game: MancalaGame) {
+  const turn = game.whoseTurn();
+  return turn === Player._1;
+}
 
+function isGameOver(game: MancalaGame) {
+  return game.getStatus() === GameStatus.FINISHED;
+}
+
+function _minimax(
+  game: MancalaGame, 
+  depth: number, 
+  maximizingPlayer: boolean, 
+  id: number,
+) {
+  if(depth === 0 || isGameOver(game)) {
+    return { result: game.getPointsDiff(), bestId: id };
+  }
+
+  const holesNumber = game.getHolesNumber();
   if(maximizingPlayer) {
     let maxEval = -Infinity;
-    for(let child of (<Node<number>>position).children()) {
-      const evaluate = _minimax(child, depth - 1, alpha, beta, false);
-      maxEval = Math.max(maxEval, evaluate);
-      alpha = Math.max(alpha, evaluate);
-      // if(beta <= alpha) break;
+    let bestId = 0;
+    for(let i = 0; i < holesNumber; i++) {
+      if(game.isPossibleToChose(i)) {
+        const pred = _.cloneDeep(game);
+        const isMaximizing = isMaximizingPlayer(pred);
+        const { result } = _minimax(pred.predict(i), depth - 1, isMaximizing, i);
+        if(result > maxEval) {
+          bestId = i;
+        }
+        maxEval = Math.max(maxEval, result);
+      }
     }
-    console.log('MAX', maxEval);
-    return maxEval;
+    // console.log('MAX', maxEval);
+    return { result: maxEval, bestId };
   } else {
     let minEval = +Infinity;
-    for(let child of (<Node<number>>position).children()) {
-      const evaluate = _minimax(child, depth - 1, alpha, beta, true);
-      minEval = Math.min(minEval, evaluate);
-      beta = Math.min(beta, evaluate);
-      // if(beta <= alpha) break;
+    let bestId = 0;
+    for(let i = 0; i < holesNumber; i++) {
+      if(game.isPossibleToChose(i)) {
+        const pred = _.cloneDeep(game);
+        const isMaximizing = isMaximizingPlayer(pred);
+        const { result } = _minimax(pred.predict(i), depth - 1, isMaximizing, i);
+        if(result < minEval) {
+          bestId = i;
+        }
+        minEval = Math.min(minEval, result);
+      }
     }
-    console.log('MIN', minEval);
-    return minEval;
+    // console.log('MIN', minEval);
+    return { result: minEval, bestId };
   }
 }
 
-function _alphaBeta() {
-  //
+function _alphaBeta( 
+  game: MancalaGame, 
+  depth: number, 
+  alpha: number, 
+  beta: number, 
+  maximizingPlayer: boolean,
+  id: number
+) {
+  if(depth === 0 || isGameOver(game)) {
+    return { result: game.getPointsDiff(), bestId: id };
+  }
+
+  const holesNumber = game.getHolesNumber();
+  if(maximizingPlayer) {
+    let maxEval = -Infinity;
+    let bestId = 0;
+    for(let i = 0; i < holesNumber; i++) {
+      if(game.isPossibleToChose(i)) {
+        const pred = _.cloneDeep(game);
+        const isMaximizing = isMaximizingPlayer(pred);
+        const { result } = _alphaBeta(pred.predict(i), depth - 1, alpha, beta, isMaximizing, i);
+        if(result > maxEval) {
+          bestId = i;
+        }
+        maxEval = Math.max(maxEval, result);
+        alpha = Math.max(alpha, result);
+        if(alpha >= beta) break;
+      }
+    }
+    // console.log('MAX', maxEval);
+    return { result: maxEval, bestId };
+  } else {
+    let minEval = +Infinity;
+    let bestId = 0;
+    for(let i = 0; i < holesNumber; i++) {
+      if(game.isPossibleToChose(i)) {
+        const pred = _.cloneDeep(game);
+        const isMaximizing = isMaximizingPlayer(pred);
+        const { result } = _alphaBeta(pred.predict(i), depth - 1, alpha, beta, isMaximizing, i);
+        if(result < minEval) {
+          bestId = i;
+        }
+        minEval = Math.min(minEval, result);
+        beta = Math.min(beta, result);
+        if(beta <= alpha) break;
+      }
+    }
+    // console.log('MIN', minEval);
+    return { result: minEval, bestId };
+  }
 }
 
 export function minimax(
-  position: Tree<number>, 
+  game: MancalaGame, 
   depth: number, 
   maximizingPlayer: boolean
 ) {
-  return _minimax(position, depth, -Infinity, Infinity, maximizingPlayer);
+  return _minimax(game, depth, maximizingPlayer, 0);
 }
 
 export function alphaBeta(
-  position: Tree<number>, 
+  game: MancalaGame, 
   depth: number, 
   maximizingPlayer: boolean
 ) {
-  return _minimax(position, depth, -Infinity, Infinity, maximizingPlayer);
+  return _alphaBeta(game, depth, -Infinity, +Infinity, maximizingPlayer, 0);
 }

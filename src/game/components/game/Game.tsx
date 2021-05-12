@@ -44,7 +44,7 @@ class Game extends React.Component<{}, IState> {
     this.chooseHole = this.chooseHole.bind(this);
   }
 
-  chooseHole(playerId: Player, hole: 1 | 2 | 3 | 4 | 5 | 6) {
+  chooseHole(playerId: Player, hole: number) {
     const mancala = this.state.mancala;
     const history = this.state.history;
     let player = mancala.whoseTurn();
@@ -147,6 +147,13 @@ class Game extends React.Component<{}, IState> {
     });
   }
 
+  botMove() {
+    const mancala = this.state.mancala;
+    const player = mancala.whoseTurn();
+    const holeId = mancala.botMove();
+    this.chooseHole(player, holeId);
+  }
+
   render () {
     return (
       <div style={{ 
@@ -172,6 +179,7 @@ class Game extends React.Component<{}, IState> {
           nextTurn={this.state.mancala.whoseTurn()}
         />
         <button onClick={() => this.undoTurn()}>Undo</button>
+        <button onClick={() => this.botMove()}>BOT Move</button>
         { this.state.result ? 
             <div style={{
               display: "flex", 

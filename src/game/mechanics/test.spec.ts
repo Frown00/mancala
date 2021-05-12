@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import _ from 'lodash';
 import { MancalaGame, Player } from './MancalaGame';
-import { minimax } from './minimax';
+import { alphaBeta, minimax } from './minimax';
 import { Leaf, Node } from './Tree';
 
 describe('Mankala', () => {
@@ -82,6 +83,27 @@ describe('Mankala', () => {
       // Then
       const stones = Array(6).fill(startingStones, 0, 6);
       // log(map);
+    });
+  });
+});
+
+describe('BOT', () => {
+  describe('reacting to current state', () => {
+    it.only('minimax and alpha beta should return same value in first turn', () => {
+      // Given
+      const startingStones = 4;
+      const game = new MancalaGame(startingStones);
+      // When
+      const max1 = minimax(game, 5, true);
+      const max2 = alphaBeta(game, 5, true);
+      const min1 = minimax(game, 5, false);
+      const min2 = alphaBeta(game, 5, false);
+      console.log(max1, max2, min1, min2);
+      // Then
+      expect(max1.bestId).to.be.equal(max2.bestId);
+      expect(max1.result).to.be.equal(max2.result);
+      expect(min1.bestId).to.be.equal(min1.bestId);
+      expect(min2.result).to.be.equal(min2.result);
     });
   });
 });
