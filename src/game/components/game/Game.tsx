@@ -5,6 +5,15 @@ import { GameStatus, MancalaGame, Player } from '../../mechanics/MancalaGame';
 import _ from "lodash";
 import * as helper from "./helpers";
 import { IBoardState } from './types';
+import { Bot, BotName, Algorithm } from '../bots/Bot';
+import { BotStefan } from '../bots/BotStefan';
+import { BotZbigniew } from '../bots/BotZbigniew';
+import { BotJanusz } from '../bots/BotJanusz';
+
+export enum PlayerName {
+  Player1 = 'Player 1',
+  Player2 = 'Player 2'
+}
 
 export interface IState {
   history: { player1: IBoardState, player2: IBoardState }[],
@@ -14,12 +23,36 @@ export interface IState {
   players: string[],
   turn: string,
   result: string,
+  bots: Bot[],
 }
 
-class Game extends React.Component<{}, IState> {
+export interface IProps {
+  bots?: {
+    name: BotName,
+    depth: number,
+    algorithm: Algorithm,
+  }[]
+}
 
-  constructor(props: {}) {
+class Game extends React.Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
+    const bots = [];
+    const playersNames: string[] = [PlayerName.Player1, PlayerName.Player2];
+    for(let i = 0; i < props.bots?.length; i++) {
+      const { name, algorithm, depth } = props.bots[i];
+      const reverseId = playersNames.length - 1 - i;
+      playersNames[reverseId] = name;
+      if(name === BotName.BOT_1) {
+        bots.push(new BotStefan(depth, algorithm));
+      }
+      if(name === BotName.BOT_2) {
+        bots.push(new BotZbigniew(depth, algorithm));
+      }
+      if(name === BotName.BOT_3) {
+        bots.push(new BotJanusz(depth, algorithm));
+      }
+    }
     const startingStones = 4;
     const holes = 6;
     const mancala = new MancalaGame(startingStones);
@@ -29,7 +62,6 @@ class Game extends React.Component<{}, IState> {
       .initialHolesWithStones(holes, startingStones, stones);
     const player1: IBoardState = { well: [], holes: filledHoles.holes1 };
     const player2: IBoardState = { well: [], holes: filledHoles.holes2 };
-    const playersNames = ["Player 1", "Player 2"];
     const firstTurn = mancala.whoseTurn();
     let turn = firstTurn === Player._1 ? playersNames[0] : playersNames[1];
     this.state = {
@@ -39,12 +71,14 @@ class Game extends React.Component<{}, IState> {
       player1,
       player2,
       turn,
-      result: null
+      result: null,
+      bots
     }
     this.chooseHole = this.chooseHole.bind(this);
   }
 
-  chooseHole(playerId: Player, hole: number) {
+  chooseHole(playerId: Player, hole: number, isPossible: boolean) {
+    if(!isPossible) return;
     const mancala = this.state.mancala;
     const history = this.state.history;
     let player = mancala.whoseTurn();
@@ -60,7 +94,6 @@ class Game extends React.Component<{}, IState> {
       player2
     } = helper.getTurnStates(this.state, player);
     const stones = choosingPlayer.holes[hole - 1];
-    console.log("STONES", stones.length);
     if(stones.length <= 0) {
       console.error("Wrong hole - no stones");
       return;
@@ -85,14 +118,12 @@ class Game extends React.Component<{}, IState> {
       enemyPlayer.holes[holes - 1 - lastTouched] = [];
       stonesToSplit.push(...toMove, ...captured);
     }
-    console.log("Stones to split", stonesToSplit.length);
     const state1 = mancala.getPlayerState(player);
     const state2 = mancala.getPlayerState(enemy);
     helper.moveStones(choosingPlayer, state1Before, state1, stones);
     helper.moveStones(enemyPlayer, state2Before, state2, stones);
     const pointsGained = state1.points - state1Before.points;
     const enemyPointsGained = state2.points - state2Before.points;
-    console.log(pointsGained, enemyPointsGained);
     if(result.status === GameStatus.FINISHED) {
       stonesToSplit = [];
       for(let i = 0; i < choosingPlayer.holes.length; i++) {
@@ -125,12 +156,29 @@ class Game extends React.Component<{}, IState> {
       return;
     }
     const turn = whoseNextTurn === Player._1 ? this.state.players[0] : this.state.players[1];
-    console.log(choosingPlayer);
-    console.log(enemyPlayer);
-    console.log(player, hole, state1, state2);
     this.setState({ player1, player2, turn, history });
   }
-  
+
+  componentDidMount() {
+    setTimeout(() => {
+      for(let i = 0; i < this.state.bots?.length; i++) {
+        if(this.state.bots[i].getName() === this.state.turn) {
+          return this.botMove(i);
+        }
+      }
+    }, 500);
+  }
+
+  componentDidUpdate() {
+    setTimeout(() => {
+      for(let i = 0; i < this.state.bots?.length; i++) {
+        if(this.state.bots[i].getName() === this.state.turn) {
+          return this.botMove(i);
+        }
+      }
+    }, 500);
+  }
+
   undoTurn() {
     const history = this.state.history;
     if(history.length <= 0) return;
@@ -147,11 +195,11 @@ class Game extends React.Component<{}, IState> {
     });
   }
 
-  botMove() {
+  botMove(botIdx: number) {
     const mancala = this.state.mancala;
     const player = mancala.whoseTurn();
-    const holeId = mancala.botMove();
-    this.chooseHole(player, holeId);
+    const holeId = mancala.botMove(this.state.bots[botIdx]);
+    this.chooseHole(player, holeId, true);
   }
 
   render () {
@@ -176,10 +224,10 @@ class Game extends React.Component<{}, IState> {
           players={this.state.players}
           player1={this.state.player1} 
           player2={this.state.player2}
-          nextTurn={this.state.mancala.whoseTurn()}
+          nextTurn={this.state.turn}
         />
         <button onClick={() => this.undoTurn()}>Undo</button>
-        <button onClick={() => this.botMove()}>BOT Move</button>
+        {/* <button onClick={() => this.botMove()}>BOT Move</button> */}
         { this.state.result ? 
             <div style={{
               display: "flex", 

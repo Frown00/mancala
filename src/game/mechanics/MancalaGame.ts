@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { alphaBeta, minimax } from "./minimax";
+import { Bot, Algorithm } from "../components/bots/Bot";
+import { alphaBeta, minimax } from "../components/bots/minimax";
 
 export enum Player {
   _1 = 'Player_1',
@@ -19,7 +20,7 @@ export class MancalaGame {
   private playerTurn: Player;
   private lastTouchedHole: number;
   private status: GameStatus;
-  private isCaptured: boolean;
+  private capture: { player: Player, earned: number };
 
   constructor(startingStones: number) {
     const holesPerPlayer = 6;
@@ -37,11 +38,11 @@ export class MancalaGame {
     this.history.push({ states: _.cloneDeep(this.state), turn: this.playerTurn });
     const takingAction = this.playerTurn;
     const { isAnotherTurn, currentState } = this.moveCounterclockwise(holeId, takingAction);
-    this.isCaptured = this.captureStones(currentState, takingAction);
+    this.capture = this.captureStones(currentState, takingAction);
     this.setWhoseNext(isAnotherTurn);
     const status = this.isGameOver(takingAction);
     this.status = status;
-    return { status, isCaptured: this.isCaptured };
+    return { status, isCaptured: this.capture ? true : false };
   }
 
   undo() {
@@ -89,18 +90,21 @@ export class MancalaGame {
     return this.state[0].stones.length;
   }
 
-  getIsCaptured() {
-    return this.isCaptured;
+  getCapture() {
+    return this.capture;
   }
 
-  botMove(): number {
+  botMove(bot: Bot): number {
     // const holes = playerState.stones.length;
     const pred = _.cloneDeep(this);
     console.log('WHO', pred.whoseTurn());
     const isMaximizing = pred.playerTurn === Player._1;
-    const { bestId, result} = alphaBeta(pred, 10, isMaximizing);
+    bot.startTurn();
+    const { bestId, result} = bot.nextMove(pred, isMaximizing);
     const holeId = bestId + 1;
-    console.log('AI CHOSE', holeId, result);
+    const score = result;
+    bot.endTurn();
+    console.log('BOT CHOSE', holeId, score, bot.getAverageReactionTime(), bot.getTotalTime(), bot.getTotalTurns());
     return holeId;
   }
 
@@ -163,7 +167,7 @@ export class MancalaGame {
 
   private captureStones(playerState: PlayerState, takingAction: Player) {
     if(playerState.player !== takingAction) {
-      return false;
+      return null;
     }
     const enemyState = this.state.find(s => s.player !== takingAction);
     const holes = playerState.stones.length;
@@ -175,10 +179,9 @@ export class MancalaGame {
       enemyState.stones[holes - 1 - id] = 0;
       playerState.stones[id] = 0;
       playerState.points += earned;
-      // console.log('CAPTURED', earned);
-      return true;
+      return { player: takingAction, earned };
     }
-    return false;
+    return null;
   }
 
   private isGameOver(takingAction: Player) {

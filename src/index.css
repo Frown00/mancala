@@ -10,3 +10,21 @@ body {
   color: white;
   background-color: black;
 }
+
+.menu-btn {
+  cursor: pointer;
+  border: 1px solid white;
+  margin: 10px;
+  width: 200px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+}
+
+.menu-btn:hover {
+  background-color: whitesmoke;
+  color: black;
+}

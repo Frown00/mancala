@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { GameStatus, MancalaGame, Player } from "./MancalaGame";
+import { Bot } from "./Bot";
+import { GameStatus, MancalaGame, Player } from "../../mechanics/MancalaGame";
 
 function isMaximizingPlayer(game: MancalaGame) {
   const turn = game.whoseTurn();
@@ -15,9 +16,10 @@ function _minimax(
   depth: number, 
   maximizingPlayer: boolean, 
   id: number,
+  bot: Bot
 ) {
   if(depth === 0 || isGameOver(game)) {
-    return { result: game.getPointsDiff(), bestId: id };
+    return { result: bot.evaluation(game, maximizingPlayer), bestId: id };
   }
 
   const holesNumber = game.getHolesNumber();
@@ -27,8 +29,9 @@ function _minimax(
     for(let i = 0; i < holesNumber; i++) {
       if(game.isPossibleToChose(i)) {
         const pred = _.cloneDeep(game);
-        const isMaximizing = isMaximizingPlayer(pred);
-        const { result } = _minimax(pred.predict(i), depth - 1, isMaximizing, i);
+        const prediction = pred.predict(i);
+        const isMaximizing = isMaximizingPlayer(prediction);
+        const { result } = _minimax(prediction, depth - 1, isMaximizing, i, bot);
         if(result > maxEval) {
           bestId = i;
         }
@@ -43,8 +46,9 @@ function _minimax(
     for(let i = 0; i < holesNumber; i++) {
       if(game.isPossibleToChose(i)) {
         const pred = _.cloneDeep(game);
-        const isMaximizing = isMaximizingPlayer(pred);
-        const { result } = _minimax(pred.predict(i), depth - 1, isMaximizing, i);
+        const prediction = pred.predict(i);
+        const isMaximizing = isMaximizingPlayer(prediction);
+        const { result } = _minimax(prediction, depth - 1, isMaximizing, i, bot);
         if(result < minEval) {
           bestId = i;
         }
@@ -62,10 +66,11 @@ function _alphaBeta(
   alpha: number, 
   beta: number, 
   maximizingPlayer: boolean,
-  id: number
+  id: number,
+  bot: Bot
 ) {
   if(depth === 0 || isGameOver(game)) {
-    return { result: game.getPointsDiff(), bestId: id };
+    return { result: bot.evaluation(game, maximizingPlayer), bestId: id };
   }
 
   const holesNumber = game.getHolesNumber();
@@ -75,14 +80,15 @@ function _alphaBeta(
     for(let i = 0; i < holesNumber; i++) {
       if(game.isPossibleToChose(i)) {
         const pred = _.cloneDeep(game);
-        const isMaximizing = isMaximizingPlayer(pred);
-        const { result } = _alphaBeta(pred.predict(i), depth - 1, alpha, beta, isMaximizing, i);
+        const prediction = pred.predict(i);
+        const isMaximizing = isMaximizingPlayer(prediction);
+        const { result } = _alphaBeta(prediction, depth - 1, alpha, beta, isMaximizing, i, bot);
         if(result > maxEval) {
           bestId = i;
         }
         maxEval = Math.max(maxEval, result);
         alpha = Math.max(alpha, result);
-        if(alpha >= beta) break;
+        if(beta <= alpha) break;
       }
     }
     // console.log('MAX', maxEval);
@@ -93,8 +99,9 @@ function _alphaBeta(
     for(let i = 0; i < holesNumber; i++) {
       if(game.isPossibleToChose(i)) {
         const pred = _.cloneDeep(game);
-        const isMaximizing = isMaximizingPlayer(pred);
-        const { result } = _alphaBeta(pred.predict(i), depth - 1, alpha, beta, isMaximizing, i);
+        const prediction = pred.predict(i);
+        const isMaximizing = isMaximizingPlayer(prediction);
+        const { result } = _alphaBeta(prediction, depth - 1, alpha, beta, isMaximizing, i, bot);
         if(result < minEval) {
           bestId = i;
         }
@@ -110,16 +117,16 @@ function _alphaBeta(
 
 export function minimax(
   game: MancalaGame, 
-  depth: number, 
-  maximizingPlayer: boolean
+  maximizingPlayer: boolean,
+  bot: Bot
 ) {
-  return _minimax(game, depth, maximizingPlayer, 0);
+  return _minimax(game, bot.getDepth(), maximizingPlayer, 0, bot);
 }
 
 export function alphaBeta(
   game: MancalaGame, 
-  depth: number, 
-  maximizingPlayer: boolean
+  maximizingPlayer: boolean,
+  bot: Bot
 ) {
-  return _alphaBeta(game, depth, -Infinity, +Infinity, maximizingPlayer, 0);
+  return _alphaBeta(game, bot.getDepth(), -Infinity, +Infinity, maximizingPlayer, 0, bot);
 }

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import Game from './game/components/game/Game';
+import { Menu } from './game/Menu';
 
 function render() {
-  ReactDOM.render(<Game />, document.getElementById('root'));
+  ReactDOM.render(<Menu />, document.getElementById('root'));
 }
 
 render();

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Player } from '../mechanics/MancalaGame';
+import { PlayerName } from './game/Game';
 import Hole, { Position } from './Hole';
 import Stone from './Stone';
 import Well from './Well';
@@ -8,11 +9,11 @@ interface IState {
 }
 
 interface IProps {
-  chooseHole: (playerId: Player, hole: number) => void,
+  chooseHole: (playerId: Player, hole: number, isPossible: boolean) => void,
   players: string[],
   player1: any,
   player2: any,
-  nextTurn: Player
+  nextTurn: string
 }
 
 export default class Mancala extends React.Component<IProps, IState> {
@@ -31,18 +32,18 @@ export default class Mancala extends React.Component<IProps, IState> {
       const downId = i + 1;
       const upStones = player1.holes[upId - 1].length > 0;
       const downStones = player2.holes[downId - 1].length > 0;
-      const upPossible = this.props.nextTurn === Player._1 && upStones;
-      const downPossible = this.props.nextTurn === Player._2 && downStones;
+      const upPossible = this.props.nextTurn === PlayerName.Player1 && upStones;
+      const downPossible = this.props.nextTurn === PlayerName.Player2 && downStones;
       holes.push(
         <div key={i}>
-          <div onClick={() => this.props.chooseHole(Player._1, upId)}>
+          <div onClick={() => this.props.chooseHole(Player._1, upId, upPossible)}>
             <Hole 
               stones={player1.holes[upId - 1]} 
               position={Position.UP}
               hoverOn={upPossible}
             />
           </div>
-          <div onClick={() => this.props.chooseHole(Player._2, downId)}>
+          <div onClick={() => this.props.chooseHole(Player._2, downId, downPossible)}>
             <Hole 
               stones={player2.holes[downId - 1]} 
               position={Position.DOWN}

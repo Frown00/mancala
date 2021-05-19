@@ -75,7 +75,6 @@ export function moveToWell(
   stones: JSX.Element[]
 ) {
   const amount = pointsGained;
-  console.log(playerBoard, pointsGained, stones.length);
   for(let i = 0; i < amount; i++) {
     if(stones[0] === undefined) {
       console.error('ERROR:', "no stones for well", playerBoard);
