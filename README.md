@@ -1,5 +1,5 @@
 # Mancala (Kalah)
-Game made as a university project to learn how min-max and alpha-beta algorithms works and how to program them.\
+Game created as a university project to learn how min-max and alpha-beta algorithms works and how to program them.\
 It's an adaptation of the real board game with the same name.
 
 ## Rules ([wiki][rules])
